@@ -39,28 +39,28 @@ def _conv(x, filter_size, out_channel, strides, pad='SAME', input_q=None, output
     return conv
 
 
-def _fc(x, out_dim, input_q=None, output_q=None, name='fc'):
-    if (input_q == None)^(output_q == None):
-        raise ValueError('Input/Output splits are not correctly given.')
-
-    with tf.variable_scope(name):
-        # Main operation: fc
-        with tf.device('/CPU:0'):
-            w = tf.get_variable('weights', [x.get_shape()[1], out_dim],
-                            tf.float32, initializer=tf.random_normal_initializer(
-                                stddev=np.sqrt(1.0/out_dim)))
-            b = tf.get_variable('biases', [out_dim], tf.float32,
-                                initializer=tf.constant_initializer(0.0))
-        if w not in tf.get_collection(WEIGHT_DECAY_KEY):
-            tf.add_to_collection(WEIGHT_DECAY_KEY, w)
-            # print('\tadded to WEIGHT_DECAY_KEY: %s(%s)' % (w.name, str(w.get_shape().as_list())))
-        fc = tf.nn.bias_add(tf.matmul(x, w), b)
-
-        # Split loss
-        if (input_q is not None) and (output_q is not None):
-            _add_split_loss(w, input_q, output_q)
-
-    return fc
+# def _fc(x, out_dim, input_q=None, output_q=None, name='fc'):
+#     if (input_q == None)^(output_q == None):
+#         raise ValueError('Input/Output splits are not correctly given.')
+#
+#     with tf.variable_scope(name):
+#         # Main operation: fc
+#         with tf.device('/CPU:0'):
+#             w = tf.get_variable('weights', [x.get_shape()[1], out_dim],
+#                             tf.float32, initializer=tf.random_normal_initializer(
+#                                 stddev=np.sqrt(1.0/out_dim)))
+#             b = tf.get_variable('biases', [out_dim], tf.float32,
+#                                 initializer=tf.constant_initializer(0.0))
+#         if w not in tf.get_collection(WEIGHT_DECAY_KEY):
+#             tf.add_to_collection(WEIGHT_DECAY_KEY, w)
+#             # print('\tadded to WEIGHT_DECAY_KEY: %s(%s)' % (w.name, str(w.get_shape().as_list())))
+#         fc = tf.nn.bias_add(tf.matmul(x, w), b)
+#
+#         # Split loss
+#         if (input_q is not None) and (output_q is not None):
+#             _add_split_loss(w, input_q, output_q)
+#
+#     return fc
 
 
 def _get_split_q(ngroups, dim, name='split', l2_loss=False):
